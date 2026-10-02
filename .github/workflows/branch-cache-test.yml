@@ -1,0 +1,28 @@
+name: branch-cache-test
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    steps:
+      - name: make payload (feature only)
+        if: github.ref == 'refs/heads/cache-feature'
+        run: mkdir -p /tmp/p && echo "BRANCH-SECRET-f19c" > /tmp/p/payload.txt
+      - name: save (feature only)
+        if: github.ref == 'refs/heads/cache-feature'
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/p
+          key: branch-only-key-B
+      - id: r
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/p2
+          key: branch-only-key-B
+      - name: report
+        run: |
+          echo "BRANCH_CACHE_HIT=[${{ steps.r.outputs.cache-hit }}]"
+          if [ -f /tmp/p2/payload.txt ]; then echo "CONTENT=[$(cat /tmp/p2/payload.txt)]"; else echo "NO-CONTENT"; fi
