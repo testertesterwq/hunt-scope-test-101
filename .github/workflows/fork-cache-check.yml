@@ -1,0 +1,19 @@
+name: fork-cache-check
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  t:
+    runs-on: ubuntu-latest
+    steps:
+      - id: r
+        uses: actions/cache/restore@v4
+        with:
+          path: /tmp/fpc
+          key: fork-poison-key
+      - name: report
+        run: |
+          echo "FORK_CACHE_HIT=[${{ steps.r.outputs.cache-hit }}]"
+          if [ -f /tmp/fpc/x.txt ]; then echo "FORK_CONTENT=[$(cat /tmp/fpc/x.txt)]"; else echo "NO-FORK-CONTENT"; fi
