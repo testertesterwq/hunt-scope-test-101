@@ -1,0 +1,25 @@
+name: cache-artifact-test
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: write cache payload
+        run: |
+          mkdir -p /tmp/payload && echo "SECRET-FROM-A-CACHE-9f2b" > /tmp/payload/secret.txt
+      - name: save cache
+        uses: actions/cache/save@v4
+        with:
+          path: /tmp/payload
+          key: shared-cache-key-A
+      - name: artifact payload
+        run: echo "SECRET-FROM-A-ARTIFACT-c7d1" > artifact-secret.txt
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: secret-artifact
+          path: artifact-secret.txt
